@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "rootDir": "src",
+    "declarationDir": "dist",
+    "paths": {
+      "@deepgram/agent": ["../../../agent/packages/sdk/dist/index"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["src/__tests__"]
+}
