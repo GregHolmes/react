@@ -7,6 +7,7 @@ import EventEmitter from "eventemitter3";
  */
 export class MockAgentSession extends EventEmitter {
   state = "idle" as string;
+  conversationHistory: Array<{ type: string; role: string; content: string }> = [];
 
   connect = jest.fn(async () => {
     this.state = "connected";

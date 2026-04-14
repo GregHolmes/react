@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   AgentSession,
   AgentMicrophone,
@@ -18,8 +18,7 @@ export interface AgentProviderProps {
   playerSampleRate?: number;
   autoStart?: boolean;
   onFunctionCall?: (fn: FunctionCallItem) => Promise<string> | string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  children?: any;
+  children?: ReactNode;
 }
 
 let _idSeq = 0;
@@ -92,7 +91,7 @@ export function AgentProvider({
     session.on("conversation-text", (msg) => {
       setConversation((prev) => [
         ...prev,
-        { id: nextId(), role: msg.role as "user" | "assistant", content: msg.content },
+        { id: nextId(), role: msg.role as "user" | "assistant", content: msg.content, timestamp: Date.now() },
       ]);
     });
 
@@ -136,6 +135,8 @@ export function AgentProvider({
 
   const start = useCallback(async () => {
     const session = sessionRef.current!;
+    // Fresh connect — reset display history (session.connect() resets conversationHistory too)
+    setConversation([]);
     await _start(session, microphone, microphoneOptions, micRef, setMicActive);
   }, [microphone, microphoneOptions]);
 
@@ -162,7 +163,10 @@ export function AgentProvider({
     sessionRef.current?.injectUserMessage(text);
   }, []);
 
-  const clearConversation = useCallback(() => setConversation([]), []);
+  const clearConversation = useCallback(() => {
+    sessionRef.current!.conversationHistory = [];
+    setConversation([]);
+  }, []);
 
   const registerClientTool = useCallback((
     name: string,

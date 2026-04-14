@@ -24,6 +24,7 @@ export type { UseAgentControlsResult }     from "./hooks/useAgentControls.js";
 
 // Standalone hook — no provider needed
 export { useDeepgramAgent } from "./hooks/useDeepgramAgent.js";
+export type { UseDeepgramAgentResult, UseDeepgramAgentOptions } from "./hooks/useDeepgramAgent.js";
 
 // SDK types re-exported for convenience
 export type {

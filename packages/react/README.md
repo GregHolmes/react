@@ -2,7 +2,7 @@
 
 React provider and hooks for the [Deepgram Voice Agent API](https://developers.deepgram.com/docs/voice-agent). Manages connection lifecycle, microphone, audio playback, conversation state, and mode tracking.
 
-For pre-built UI components, see [`@deepgram/ui`](../ui/).
+For pre-built UI components, see [`@deepgram/ui`](https://github.com/deepgram/ui).
 
 ## Install
 
@@ -107,7 +107,7 @@ Conversation transcript and text messaging.
 
 ```ts
 const {
-  conversation,       // ConversationEntry[] -- { id, role, content }
+  conversation,       // ConversationEntry[] -- { id, role, content, timestamp }
   clearConversation,  // () => void
   sendUserMessage,    // (text: string) => void
 } = useAgentConversation();
@@ -195,8 +195,7 @@ Self-contained hook that does not require `AgentProvider`. Creates and manages i
 ```ts
 const {
   state, micActive, outputMuted, conversation,
-  start, stop, setMicMuted, setOutputMuted, sendUserMessage,
-  getInputVolume, getOutputVolume,
+  start, stop, setMicMuted, setOutputMuted, sendUserMessage, interrupt,
 } = useDeepgramAgent({
   config: {
     auth: { tokenFactory: () => fetch('/api/token').then(r => r.text()) },

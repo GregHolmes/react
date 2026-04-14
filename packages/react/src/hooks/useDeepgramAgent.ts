@@ -9,12 +9,7 @@ import {
   type ConversationTextMessage,
   type FunctionCallRequestMessage,
 } from "@deepgram/agent";
-
-export interface ConversationEntry {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-}
+import type { ConversationEntry } from "../context.js";
 
 export interface UseDeepgramAgentOptions {
   config: AgentSessionConfig;
@@ -105,7 +100,7 @@ export function useDeepgramAgent({
     session.on("conversation-text", (msg: ConversationTextMessage) => {
       setConversation((prev) => [
         ...prev,
-        { id: nextId(), role: msg.role as "user" | "assistant", content: msg.content },
+        { id: nextId(), role: msg.role as "user" | "assistant", content: msg.content, timestamp: Date.now() },
       ]);
     });
 

@@ -6,6 +6,7 @@ export interface ConversationEntry {
   id: string;
   role: "user" | "assistant";
   content: string;
+  timestamp: number; // ms epoch
 }
 
 export type AgentMode = "idle" | "listening" | "speaking";
