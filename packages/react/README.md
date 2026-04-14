@@ -7,7 +7,7 @@ For pre-built UI components, see [`@deepgram/ui`](https://github.com/deepgram/ui
 ## Install
 
 ```bash
-bun add @deepgram/react react react-dom
+npm install @deepgram/react @deepgram/agent
 ```
 
 ## Quick Start
@@ -211,6 +211,7 @@ All hooks, the provider, context types, and common SDK types (re-exported from `
 ```ts
 // Provider
 export { AgentProvider };
+export type { AgentProviderProps };
 
 // Hooks
 export {
@@ -220,12 +221,22 @@ export {
   useDeepgramAgent,
 };
 
-// Types (re-exported from @deepgram/agent)
+// Hook result types
+export type {
+  UseAgentStateResult, UseAgentConversationResult,
+  UseAgentMicrophoneResult, UseAgentPlayerResult,
+  UseAgentModeResult, UseAgentControlsResult,
+  UseDeepgramAgentResult, UseDeepgramAgentOptions,
+};
+
+// Context types
+export type { AgentContextValue, ConversationEntry, AgentMode };
+
+// SDK types (re-exported from @deepgram/agent)
 export type {
   AgentSessionConfig, AuthConfig, TokenFactory,
   AgentSettingsObject, ThinkSettings, SpeakSettings,
-  MicrophoneOptions, VadOptions,
-  AgentMode, ConversationEntry,
+  MicrophoneOptions,
 };
 ```
 
