@@ -11,7 +11,7 @@
 
 ## Checklist
 
-- [ ] I have read the [CONTRIBUTING](../CONTRIBUTING.md) guide
+- [ ] I have read the [CONTRIBUTING](./CONTRIBUTING.md) guide
 - [ ] Code builds cleanly (`bun run build`)
 - [ ] Tests pass (`bun run test`)
 - [ ] Documentation updated (if applicable)

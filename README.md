@@ -105,7 +105,7 @@ bun run dev         # Watch-build
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 
