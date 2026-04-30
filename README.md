@@ -9,7 +9,7 @@ React hooks and provider for the [Deepgram Voice Agent API](https://developers.d
 ## Install
 
 ```bash
-npm install @deepgram/react @deepgram/agent
+npm install @deepgram/react @deepgram/agents
 ```
 
 ## Quick Start
@@ -67,9 +67,9 @@ See the [package README](packages/react/README.md) for full API documentation.
 
 | Package | Repo | Description |
 |---------|------|-------------|
-| [`@deepgram/agent`](https://github.com/deepgram/agent) | `deepgram/agent` | Core SDK -- WebSocket session, microphone capture, audio playback |
+| [`@deepgram/agents`](https://github.com/deepgram/agent) | `deepgram/agent` | Core SDK -- WebSocket session, microphone capture, audio playback |
 | [`@deepgram/ui`](https://github.com/deepgram/ui) | `deepgram/ui` | Pre-built React UI components with Tailwind CSS theming |
-| [`@deepgram/agent-widget`](https://github.com/deepgram/agent) | `deepgram/agent` | Self-contained widget (UMD + ESM) |
+| [`@deepgram/agents-widget`](https://github.com/deepgram/agent) | `deepgram/agent` | Self-contained widget (UMD + ESM) |
 
 ## Documentation
 
@@ -81,7 +81,7 @@ See the [package README](packages/react/README.md) for full API documentation.
 
 **Prerequisites:** [Bun](https://bun.sh/) 1.3+
 
-This package depends on `@deepgram/agent` via a `file:` pointer. Clone the agent repo as a sibling:
+This package depends on `@deepgram/agents` via a `file:` pointer. Clone the agent repo as a sibling:
 
 ```bash
 git clone git@github.com:deepgram/agent.git ../agent

@@ -1,5 +1,5 @@
 import { useAgentContext } from "../context.js";
-import type { AgentState } from "@deepgram/agent";
+import type { AgentState } from "@deepgram/agents";
 
 export interface UseAgentStateResult {
   state: AgentState;

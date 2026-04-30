@@ -7,7 +7,7 @@ This repo owns:
 - local examples in `examples/`
 
 Sibling dependency:
-- `../agent` → `@deepgram/agent`
+- `../agent` → `@deepgram/agents`
 
 ## Commands
 
@@ -20,7 +20,7 @@ bun run dev
 
 ## Architecture Notes
 
-- `@deepgram/react` depends on `@deepgram/agent`.
+- `@deepgram/react` depends on `@deepgram/agents`.
 - It provides the provider + hooks layer only; no bundled UI.
 - `@deepgram/ui` consumes this package for prebuilt components.
 

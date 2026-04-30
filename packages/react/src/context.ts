@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
-import type { AgentSession, AgentState } from "@deepgram/agent";
-import type { FunctionCallItem } from "@deepgram/agent";
+import type { AgentSession, AgentState } from "@deepgram/agents";
+import type { FunctionCallItem } from "@deepgram/agents";
 
 export interface ConversationEntry {
   id: string;
