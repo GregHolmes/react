@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAgentContext } from "../context.js";
-import type { FunctionCallItem } from "@deepgram/agent";
+import type { FunctionCallItem } from "@deepgram/agents";
 
 /**
  * Register a client-side tool handler that the agent can invoke.

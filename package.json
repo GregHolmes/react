@@ -13,7 +13,6 @@
     "lint": "bun run --filter '@deepgram/react' lint"
   },
   "overrides": {
-    "brace-expansion": "5.0.5",
-    "@deepgram/agent": "file:../agent/packages/sdk"
+    "brace-expansion": "5.0.5"
   }
 }

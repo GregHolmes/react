@@ -8,7 +8,7 @@ import {
   type AgentState,
   type ConversationTextMessage,
   type FunctionCallRequestMessage,
-} from "@deepgram/agent";
+} from "@deepgram/agents";
 import type { ConversationEntry } from "../context.js";
 
 export interface UseDeepgramAgentOptions {

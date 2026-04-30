@@ -7,7 +7,7 @@
     "rootDir": "src",
     "declarationDir": "dist",
     "paths": {
-      "@deepgram/agent": ["../../../agent/packages/sdk/dist/index"]
+      "@deepgram/agents": ["../../../agent/packages/sdk/dist/index"]
     }
   },
   "include": ["src"],

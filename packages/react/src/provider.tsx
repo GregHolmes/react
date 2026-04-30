@@ -7,7 +7,7 @@ import {
   type AgentState,
   type MicrophoneOptions,
   type FunctionCallItem,
-} from "@deepgram/agent";
+} from "@deepgram/agents";
 import { AgentContext, type AgentMode, type ConversationEntry } from "./context.js";
 
 export interface AgentProviderProps {

@@ -35,4 +35,4 @@ export type {
   ThinkSettings,
   SpeakSettings,
   MicrophoneOptions,
-} from "@deepgram/agent";
+} from "@deepgram/agents";
