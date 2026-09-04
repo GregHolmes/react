@@ -20,7 +20,7 @@ function App() {
     <AgentProvider
       config={{
         auth: { tokenFactory: () => fetch('/api/deepgram-token').then(r => r.text()) },
-        agent: { think: { provider: { type: 'open_ai' }, model: 'gpt-4o-mini' } },
+        agent: { think: { provider: { type: 'open_ai', model: 'gpt-4o-mini' } } },
       }}
     >
       <VoiceAgent />
@@ -58,14 +58,23 @@ Wraps your component tree with agent state management. Creates and manages an `A
   playerSampleRate={24_000}     // Agent audio sample rate (default: 24_000)
   autoStart={false}             // Auto-connect on mount (default: false)
   onFunctionCall={handler}      // Fallback function call handler
+  onError={handleError}         // Protocol Error notification
+  onSdkError={handleSdkError}   // Connection or transport failure
+  onWarning={handleWarning}     // Protocol Warning notification
+  onLatencyReport={handleLatency}
+  onInjectionRefused={handleRefusal}
+  onListenUpdated={handleListenUpdate}
+  onHistory={handleHistory}
 >
   {children}
 </AgentProvider>
 ```
 
+`config`, `playerSampleRate`, and the initial `autoStart` value establish resources for the provider's lifetime. Changing those props does not reconstruct or automatically restart the session. Use `updateListen`, `updateThink`, `updateSpeak`, and `updatePrompt` for supported mid-session changes; remount the provider when a new session config or player sample rate is required.
+
 ### Mode Tracking
 
-The provider tracks three agent modes: `"idle"`, `"listening"`, and `"speaking"`.
+The provider tracks four agent modes: `"idle"`, `"listening"`, `"thinking"`, and `"speaking"`.
 
 The speaking-to-listening transition is **playback-aware** -- when the server fires `AgentAudioDone`, the provider waits until `AgentPlayer.getRemainingPlaybackTime()` reaches zero before switching to `"listening"`. This prevents premature mode changes while audio is still playing.
 
@@ -91,13 +100,14 @@ const {
 
 ### useAgentMode
 
-Speaking/listening mode.
+Speaking/listening/thinking mode.
 
 ```ts
 const {
-  mode,        // "idle" | "listening" | "speaking"
-  isSpeaking,  // boolean
-  isListening, // boolean
+   mode,        // "idle" | "listening" | "thinking" | "speaking"
+   isSpeaking,  // boolean
+   isListening, // boolean
+   isThinking,  // boolean
 } = useAgentMode();
 ```
 
@@ -110,6 +120,7 @@ const {
   conversation,       // ConversationEntry[] -- { id, role, content, timestamp }
   clearConversation,  // () => void
   sendUserMessage,    // (text: string) => void
+  sendAgentMessage,   // (message: string, behavior?) => void
 } = useAgentConversation();
 ```
 
@@ -144,13 +155,18 @@ const {
 
 ### useAgentControls
 
-Stable action methods that never change identity. Use in components that trigger actions but do not display state.
+Lifecycle, messaging, runtime settings, and mute actions grouped in one hook. Like the other focused hooks, it consumes `AgentContext`, so consumers still re-render when the provider value changes.
 
 ```ts
 const {
   start,
   stop,
   sendUserMessage,
+  sendAgentMessage,
+  updateListen,
+  updateThink,
+  updateSpeak,
+  updatePrompt,
   clearConversation,
   setMicMuted,
   setOutputMuted,
@@ -164,7 +180,7 @@ Register a client-side function call handler scoped to the component's lifecycle
 ```tsx
 function WeatherPanel() {
   useAgentClientTool("getWeather", async (fn) => {
-    const { city } = JSON.parse(fn.input);
+    const { city } = JSON.parse(fn.arguments);
     const data = await fetchWeather(city);
     return JSON.stringify(data);
   });
@@ -186,21 +202,28 @@ session.on("warning", (msg) => console.warn(msg));
 
 ### useAgentContext
 
-Raw context value (escape hatch). Returns the full `AgentContextValue`. Prefer focused hooks for better render performance.
+Raw context value (escape hatch). Returns the full `AgentContextValue`. Prefer focused hooks for a smaller, purpose-specific API surface.
 
 ### useDeepgramAgent (standalone)
 
 Self-contained hook that does not require `AgentProvider`. Creates and manages its own session, microphone, and player. Useful for simple integrations or when you don't need the provider/context pattern.
 
+The initial `config` and `playerSampleRate` similarly apply for the hook's lifetime. Use the returned update methods for supported runtime settings changes.
+
 ```ts
 const {
-  state, micActive, outputMuted, conversation,
-  start, stop, setMicMuted, setOutputMuted, sendUserMessage, interrupt,
+  state, mode, micActive, micMuted, outputMuted, conversation,
+  start, stop, setMicMuted, setOutputMuted,
+  sendUserMessage, sendAgentMessage,
+  updateListen, updateThink, updateSpeak, updatePrompt,
+  clearConversation, interrupt,
 } = useDeepgramAgent({
   config: {
     auth: { tokenFactory: () => fetch('/api/token').then(r => r.text()) },
-    agent: { think: { provider: { type: 'open_ai' }, model: 'gpt-4o-mini' } },
+    agent: { think: { provider: { type: 'open_ai', model: 'gpt-4o-mini' } } },
   },
+  onWarning: (message) => console.warn(message),
+  onLatencyReport: (report) => console.debug(report),
 });
 ```
 
@@ -211,7 +234,7 @@ All hooks, the provider, context types, and common SDK types (re-exported from `
 ```ts
 // Provider
 export { AgentProvider };
-export type { AgentProviderProps };
+export type { AgentNotificationCallbacks, AgentProviderProps };
 
 // Hooks
 export {
@@ -235,8 +258,11 @@ export type { AgentContextValue, ConversationEntry, AgentMode };
 // SDK types (re-exported from @deepgram/agents)
 export type {
   AgentSessionConfig, AuthConfig, TokenFactory,
-  AgentSettingsObject, ThinkSettings, SpeakSettings,
-  MicrophoneOptions,
+  AgentSettingsObject, AgentMessageBehavior, ListenSettings,
+  ThinkSettings, SpeakSettings, MicrophoneOptions,
+  AgentThinkingMessage, ListenUpdatedMessage, LatencyReportMessage,
+  HistoryMessage, InjectionRefusedMessage,
+  AgentErrorMessage, AgentWarningMessage,
 };
 ```
 

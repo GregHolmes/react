@@ -10,7 +10,7 @@ Thanks for your interest in contributing to `@deepgram/react`!
 ## Setup
 
 ```bash
-# Clone the agent SDK (required -- @deepgram/react depends on it via file: pointer)
+# Clone and build the sibling agent SDK used by the local TypeScript path mapping
 git clone git@github.com:deepgram/agent.git ../agent
 cd ../agent && bun install && bun run build
 cd -

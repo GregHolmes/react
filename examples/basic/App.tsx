@@ -10,7 +10,7 @@ const config = {
     tokenFactory: () => fetch("/api/deepgram-token").then((r) => r.text()),
   },
   agent: {
-    think: { provider: { type: "open_ai" as const }, model: "gpt-4o-mini" },
+    think: { provider: { type: "open_ai" as const, model: "gpt-4o-mini" } },
   },
 };
 
