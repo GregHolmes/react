@@ -510,7 +510,12 @@ export function AgentProvider({
           !autoStartRequestedRef.current
         ) {
           autoStartRequestedRef.current = true;
-          start().catch(console.error);
+          start().catch((error) => {
+            const sdkError = error instanceof Error ? error : new Error(String(error));
+            const callback = latestPropsRef.current.onSdkError;
+            if (callback) callback(sdkError);
+            else console.error(sdkError);
+          });
         }
       });
     }

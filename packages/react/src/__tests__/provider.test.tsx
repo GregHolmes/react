@@ -757,6 +757,17 @@ describe("AgentProvider", () => {
       expect(lastSession.sendFunctionCallResponse).not.toHaveBeenCalled();
     });
 
+    it("forwards auto-start connection failures to onSdkError", async () => {
+      const onSdkError = jest.fn();
+      render(<TestProvider autoStart onSdkError={onSdkError}><div /></TestProvider>);
+      const failure = new Error("connection refused");
+      lastSession.connect.mockRejectedValueOnce(failure);
+
+      await waitFor(() => {
+        expect(onSdkError).toHaveBeenCalledWith(failure);
+      });
+    });
+
     it("survives StrictMode replay without duplicate auto-start or disposed-player reuse", async () => {
       const { unmount } = render(
         <React.StrictMode>
