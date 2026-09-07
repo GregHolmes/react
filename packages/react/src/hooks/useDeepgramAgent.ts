@@ -17,8 +17,11 @@ import {
   type ListenSettings,
   type ListenUpdatedMessage,
   type MicrophoneOptions,
+  type PromptUpdatedMessage,
   type SpeakSettings,
+  type SpeakUpdatedMessage,
   type ThinkSettings,
+  type ThinkUpdatedMessage,
 } from "@deepgram/agents";
 import type { AgentMode, ConversationEntry } from "../context.js";
 import type { AgentNotificationCallbacks } from "../provider.js";
@@ -75,6 +78,9 @@ export function useDeepgramAgent({
   onLatencyReport,
   onInjectionRefused,
   onListenUpdated,
+  onPromptUpdated,
+  onSpeakUpdated,
+  onThinkUpdated,
   onHistory,
 }: UseDeepgramAgentOptions): UseDeepgramAgentResult {
   const sessionRef = useRef<AgentSession | null>(null);
@@ -92,6 +98,9 @@ export function useDeepgramAgent({
     onLatencyReport,
     onInjectionRefused,
     onListenUpdated,
+    onPromptUpdated,
+    onSpeakUpdated,
+    onThinkUpdated,
     onHistory,
   });
   latestOptionsRef.current = {
@@ -103,6 +112,9 @@ export function useDeepgramAgent({
     onLatencyReport,
     onInjectionRefused,
     onListenUpdated,
+    onPromptUpdated,
+    onSpeakUpdated,
+    onThinkUpdated,
     onHistory,
   };
 
@@ -338,6 +350,9 @@ export function useDeepgramAgent({
     const onLatency = (message: LatencyReportMessage) => latestOptionsRef.current.onLatencyReport?.(message);
     const onRefused = (message: InjectionRefusedMessage) => latestOptionsRef.current.onInjectionRefused?.(message);
     const onListen = (message: ListenUpdatedMessage) => latestOptionsRef.current.onListenUpdated?.(message);
+    const onPrompt = (message: PromptUpdatedMessage) => latestOptionsRef.current.onPromptUpdated?.(message);
+    const onSpeak = (message: SpeakUpdatedMessage) => latestOptionsRef.current.onSpeakUpdated?.(message);
+    const onThink = (message: ThinkUpdatedMessage) => latestOptionsRef.current.onThinkUpdated?.(message);
     const onHistoryMessage = (message: HistoryMessage) => latestOptionsRef.current.onHistory?.(message);
 
     session.on("connecting", onState);
@@ -358,6 +373,9 @@ export function useDeepgramAgent({
     session.on("latency-report", onLatency);
     session.on("injection-refused", onRefused);
     session.on("listen-updated", onListen);
+    session.on("prompt-updated", onPrompt);
+    session.on("speak-updated", onSpeak);
+    session.on("think-updated", onThink);
     session.on("history", onHistoryMessage);
 
     return () => {
@@ -384,6 +402,9 @@ export function useDeepgramAgent({
       session.off("latency-report", onLatency);
       session.off("injection-refused", onRefused);
       session.off("listen-updated", onListen);
+      session.off("prompt-updated", onPrompt);
+      session.off("speak-updated", onSpeak);
+      session.off("think-updated", onThink);
       session.off("history", onHistoryMessage);
 
       queueMicrotask(() => {

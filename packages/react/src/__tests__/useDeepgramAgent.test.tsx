@@ -95,6 +95,31 @@ describe("useDeepgramAgent", () => {
     expect(onSdkError).toHaveBeenCalledWith(error);
   });
 
+  it("forwards runtime setting update notifications", () => {
+    const onPromptUpdated = jest.fn();
+    const onSpeakUpdated = jest.fn();
+    const onThinkUpdated = jest.fn();
+    renderHook(() => useDeepgramAgent({
+      config,
+      onPromptUpdated,
+      onSpeakUpdated,
+      onThinkUpdated,
+    }));
+    const prompt = { type: "PromptUpdated" };
+    const speak = { type: "SpeakUpdated" };
+    const think = { type: "ThinkUpdated" };
+
+    act(() => {
+      lastSession.emit("prompt-updated", prompt);
+      lastSession.emit("speak-updated", speak);
+      lastSession.emit("think-updated", think);
+    });
+
+    expect(onPromptUpdated).toHaveBeenCalledWith(prompt);
+    expect(onSpeakUpdated).toHaveBeenCalledWith(speak);
+    expect(onThinkUpdated).toHaveBeenCalledWith(think);
+  });
+
   it("rolls back cleanly when microphone startup fails", async () => {
     const failure = new Error("microphone unavailable");
     failNextMicrophoneStart(failure);

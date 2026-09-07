@@ -338,6 +338,9 @@ describe("AgentProvider", () => {
         onLatencyReport: jest.fn(),
         onInjectionRefused: jest.fn(),
         onListenUpdated: jest.fn(),
+        onPromptUpdated: jest.fn(),
+        onSpeakUpdated: jest.fn(),
+        onThinkUpdated: jest.fn(),
         onHistory: jest.fn(),
       };
       render(<TestProvider {...callbacks}><div /></TestProvider>);
@@ -349,6 +352,9 @@ describe("AgentProvider", () => {
         latency: { type: "LatencyReport", total_latency: 10 },
         refused: { type: "InjectionRefused", message: "busy" },
         listen: { type: "ListenUpdated" },
+        prompt: { type: "PromptUpdated" },
+        speak: { type: "SpeakUpdated" },
+        think: { type: "ThinkUpdated" },
         history: { type: "History", role: "assistant", content: "hello" },
       };
       act(() => {
@@ -358,6 +364,9 @@ describe("AgentProvider", () => {
         lastSession.emit("latency-report", messages.latency);
         lastSession.emit("injection-refused", messages.refused);
         lastSession.emit("listen-updated", messages.listen);
+        lastSession.emit("prompt-updated", messages.prompt);
+        lastSession.emit("speak-updated", messages.speak);
+        lastSession.emit("think-updated", messages.think);
         lastSession.emit("history", messages.history);
       });
 
@@ -367,6 +376,9 @@ describe("AgentProvider", () => {
       expect(callbacks.onLatencyReport).toHaveBeenCalledWith(messages.latency);
       expect(callbacks.onInjectionRefused).toHaveBeenCalledWith(messages.refused);
       expect(callbacks.onListenUpdated).toHaveBeenCalledWith(messages.listen);
+      expect(callbacks.onPromptUpdated).toHaveBeenCalledWith(messages.prompt);
+      expect(callbacks.onSpeakUpdated).toHaveBeenCalledWith(messages.speak);
+      expect(callbacks.onThinkUpdated).toHaveBeenCalledWith(messages.think);
       expect(callbacks.onHistory).toHaveBeenCalledWith(messages.history);
     });
 

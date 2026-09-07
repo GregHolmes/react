@@ -83,7 +83,7 @@ See the [package README](packages/react/README.md) for full API documentation.
 
 **Prerequisites:** [Bun](https://bun.sh/) 1.3+
 
-The published package depends on the npm release of `@deepgram/agents`. For coordinated local development, this repository's TypeScript config maps `@deepgram/agents` to a built sibling checkout:
+The published package depends on the npm release of `@deepgram/agents`. For coordinated local development, you can optionally clone a sibling checkout; this repository's TypeScript config uses it when present and otherwise resolves the npm package:
 
 ```bash
 git clone git@github.com:deepgram/agent.git ../agent

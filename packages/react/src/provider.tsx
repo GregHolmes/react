@@ -17,8 +17,11 @@ import {
   type ListenSettings,
   type ListenUpdatedMessage,
   type MicrophoneOptions,
+  type PromptUpdatedMessage,
   type SpeakSettings,
+  type SpeakUpdatedMessage,
   type ThinkSettings,
+  type ThinkUpdatedMessage,
 } from "@deepgram/agents";
 import { AgentContext, type AgentMode, type ConversationEntry } from "./context.js";
 
@@ -29,6 +32,9 @@ export interface AgentNotificationCallbacks {
   onLatencyReport?: (message: LatencyReportMessage) => void;
   onInjectionRefused?: (message: InjectionRefusedMessage) => void;
   onListenUpdated?: (message: ListenUpdatedMessage) => void;
+  onPromptUpdated?: (message: PromptUpdatedMessage) => void;
+  onSpeakUpdated?: (message: SpeakUpdatedMessage) => void;
+  onThinkUpdated?: (message: ThinkUpdatedMessage) => void;
   onHistory?: (message: HistoryMessage) => void;
 }
 
@@ -60,6 +66,9 @@ export function AgentProvider({
   onLatencyReport,
   onInjectionRefused,
   onListenUpdated,
+  onPromptUpdated,
+  onSpeakUpdated,
+  onThinkUpdated,
   onHistory,
   children,
 }: AgentProviderProps) {
@@ -80,6 +89,9 @@ export function AgentProvider({
     onLatencyReport,
     onInjectionRefused,
     onListenUpdated,
+    onPromptUpdated,
+    onSpeakUpdated,
+    onThinkUpdated,
     onHistory,
   });
   latestPropsRef.current = {
@@ -93,6 +105,9 @@ export function AgentProvider({
     onLatencyReport,
     onInjectionRefused,
     onListenUpdated,
+    onPromptUpdated,
+    onSpeakUpdated,
+    onThinkUpdated,
     onHistory,
   };
 
@@ -459,6 +474,9 @@ export function AgentProvider({
     const onLatency = (message: LatencyReportMessage) => latestPropsRef.current.onLatencyReport?.(message);
     const onRefused = (message: InjectionRefusedMessage) => latestPropsRef.current.onInjectionRefused?.(message);
     const onListen = (message: ListenUpdatedMessage) => latestPropsRef.current.onListenUpdated?.(message);
+    const onPrompt = (message: PromptUpdatedMessage) => latestPropsRef.current.onPromptUpdated?.(message);
+    const onSpeak = (message: SpeakUpdatedMessage) => latestPropsRef.current.onSpeakUpdated?.(message);
+    const onThink = (message: ThinkUpdatedMessage) => latestPropsRef.current.onThinkUpdated?.(message);
     const onHistoryMessage = (message: HistoryMessage) => latestPropsRef.current.onHistory?.(message);
 
     session.on("connecting", onState);
@@ -479,6 +497,9 @@ export function AgentProvider({
     session.on("latency-report", onLatency);
     session.on("injection-refused", onRefused);
     session.on("listen-updated", onListen);
+    session.on("prompt-updated", onPrompt);
+    session.on("speak-updated", onSpeak);
+    session.on("think-updated", onThink);
     session.on("history", onHistoryMessage);
 
     if (initialAutoStartRef.current) {
@@ -519,6 +540,9 @@ export function AgentProvider({
       session.off("latency-report", onLatency);
       session.off("injection-refused", onRefused);
       session.off("listen-updated", onListen);
+      session.off("prompt-updated", onPrompt);
+      session.off("speak-updated", onSpeak);
+      session.off("think-updated", onThink);
       session.off("history", onHistoryMessage);
 
       // StrictMode immediately replays effects. Delay final resource disposal so

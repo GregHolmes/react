@@ -53,17 +53,25 @@ Wraps your component tree with agent state management. Creates and manages an `A
 <AgentProvider
   config={agentSessionConfig}   // Required: AgentSessionConfig
   microphone={true}             // Enable microphone capture (default: true)
-  microphoneOptions={{}}        // MicrophoneOptions (VAD, sample rate, etc.)
+  microphoneOptions={{          // MicrophoneOptions
+    sampleRate: 16_000,
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  }}
   tts={true}                    // Enable audio playback (default: true)
   playerSampleRate={24_000}     // Agent audio sample rate (default: 24_000)
   autoStart={false}             // Auto-connect on mount (default: false)
   onFunctionCall={handler}      // Fallback function call handler
   onError={handleError}         // Protocol Error notification
-  onSdkError={handleSdkError}   // Connection or transport failure
+  onSdkError={handleSdkError}   // Connection, transport, or microphone-start failure
   onWarning={handleWarning}     // Protocol Warning notification
   onLatencyReport={handleLatency}
   onInjectionRefused={handleRefusal}
   onListenUpdated={handleListenUpdate}
+  onPromptUpdated={handlePromptUpdate}
+  onSpeakUpdated={handleSpeakUpdate}
+  onThinkUpdated={handleThinkUpdate}
   onHistory={handleHistory}
 >
   {children}
@@ -72,11 +80,13 @@ Wraps your component tree with agent state management. Creates and manages an `A
 
 `config`, `playerSampleRate`, and the initial `autoStart` value establish resources for the provider's lifetime. Changing those props does not reconstruct or automatically restart the session. Use `updateListen`, `updateThink`, `updateSpeak`, and `updatePrompt` for supported mid-session changes; remount the provider when a new session config or player sample rate is required.
 
+`onListenUpdated`, `onPromptUpdated`, `onSpeakUpdated`, and `onThinkUpdated` receive the server confirmations for their matching runtime update methods.
+
 ### Mode Tracking
 
 The provider tracks four agent modes: `"idle"`, `"listening"`, `"thinking"`, and `"speaking"`.
 
-The speaking-to-listening transition is **playback-aware** -- when the server fires `AgentAudioDone`, the provider waits until `AgentPlayer.getRemainingPlaybackTime()` reaches zero before switching to `"listening"`. This prevents premature mode changes while audio is still playing.
+`"thinking"` is set only when the server sends `AgentThinking`; text-injected turns may not send that event. `"speaking"` is set when the server sends `AgentStartedSpeaking` and, when `tts={true}`, inferred from incoming agent audio if that event is absent. With `tts={false}`, speaking inference requires the server event. The speaking-to-listening transition is playback-aware: when the server fires `AgentAudioDone`, the provider waits until `AgentPlayer.getRemainingPlaybackTime()` reaches zero before switching to `"listening"`. This prevents premature mode changes while audio is still playing.
 
 ## Hooks
 
@@ -120,7 +130,7 @@ const {
   conversation,       // ConversationEntry[] -- { id, role, content, timestamp }
   clearConversation,  // () => void
   sendUserMessage,    // (text: string) => void
-  sendAgentMessage,   // (message: string, behavior?) => void
+  sendAgentMessage,   // (message: string, behavior?: "default" | "queue" | "interrupt") => void
 } = useAgentConversation();
 ```
 
@@ -210,6 +220,10 @@ Self-contained hook that does not require `AgentProvider`. Creates and manages i
 
 The initial `config` and `playerSampleRate` similarly apply for the hook's lifetime. Use the returned update methods for supported runtime settings changes.
 
+`start()` begins a fresh session and clears `conversation`.
+
+The standalone hook accepts the same notification callbacks as `AgentProvider`, including `onListenUpdated`, `onPromptUpdated`, `onSpeakUpdated`, and `onThinkUpdated`.
+
 ```ts
 const {
   state, mode, micActive, micMuted, outputMuted, conversation,
@@ -260,7 +274,8 @@ export type {
   AgentSessionConfig, AuthConfig, TokenFactory,
   AgentSettingsObject, AgentMessageBehavior, ListenSettings,
   ThinkSettings, SpeakSettings, MicrophoneOptions,
-  AgentThinkingMessage, ListenUpdatedMessage, LatencyReportMessage,
+  AgentThinkingMessage, ListenUpdatedMessage, PromptUpdatedMessage,
+  SpeakUpdatedMessage, ThinkUpdatedMessage, LatencyReportMessage,
   HistoryMessage, InjectionRefusedMessage,
   AgentErrorMessage, AgentWarningMessage,
 };
