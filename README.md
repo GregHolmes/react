@@ -33,10 +33,17 @@ function App() {
 function VoiceAgent() {
   const { state, start, stop } = useAgentState();
   const { conversation } = useAgentConversation();
+  const handleStart = async () => {
+    try {
+      await start();
+    } catch (error) {
+      console.error("Failed to start voice agent", error);
+    }
+  };
 
   return (
     <div>
-      <button onClick={state === "idle" ? start : stop}>
+      <button onClick={state === "idle" ? handleStart : stop}>
         {state === "idle" ? "Start" : "Stop"}
       </button>
       {conversation.map((entry) => (

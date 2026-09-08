@@ -330,6 +330,13 @@ export function AgentProvider({
     setConversation([]);
   }, []);
 
+  const reportAutomaticStartError = useCallback((error: unknown) => {
+    const sdkError = error instanceof Error ? error : new Error(String(error));
+    const callback = latestPropsRef.current.onSdkError;
+    if (callback) callback(sdkError);
+    else console.error(sdkError);
+  }, []);
+
   const registerClientTool = useCallback((
     name: string,
     handler: (fn: FunctionCallItem) => Promise<string> | string,
@@ -385,13 +392,9 @@ export function AgentProvider({
 
     const session = sessionRef.current;
     if (session?.state === "connected" && !micRef.current) {
-      void startMicrophone(session).catch((error) => {
-        latestPropsRef.current.onSdkError?.(
-          error instanceof Error ? error : new Error(String(error)),
-        );
-      });
+      void startMicrophone(session).catch(reportAutomaticStartError);
     }
-  }, [microphone, startMicrophone]);
+  }, [microphone, reportAutomaticStartError, startMicrophone]);
 
   useEffect(() => {
     const session = requireSession(sessionRef.current);
@@ -402,11 +405,7 @@ export function AgentProvider({
     const onConnected = () => {
       onState();
       if (startInProgressGenerationRef.current !== null) return;
-      void startMicrophone(session).catch((error) => {
-        latestPropsRef.current.onSdkError?.(
-          error instanceof Error ? error : new Error(String(error)),
-        );
-      });
+      void startMicrophone(session).catch(reportAutomaticStartError);
     };
     const onDisconnected = () => {
       ++startGenerationRef.current;
@@ -521,12 +520,7 @@ export function AgentProvider({
           !autoStartRequestedRef.current
         ) {
           autoStartRequestedRef.current = true;
-          start().catch((error) => {
-            const sdkError = error instanceof Error ? error : new Error(String(error));
-            const callback = latestPropsRef.current.onSdkError;
-            if (callback) callback(sdkError);
-            else console.error(sdkError);
-          });
+          start().catch(reportAutomaticStartError);
         }
       });
     }
@@ -575,7 +569,7 @@ export function AgentProvider({
         playerRef.current = null;
       });
     };
-  }, [clearAudioDoneTimer, ensurePlayer, start, startMicrophone]);
+  }, [clearAudioDoneTimer, ensurePlayer, reportAutomaticStartError, start, startMicrophone]);
 
   return (
     <AgentContext.Provider

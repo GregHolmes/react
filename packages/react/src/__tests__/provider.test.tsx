@@ -693,6 +693,41 @@ describe("AgentProvider", () => {
       expect(context!.micActive).toBe(true);
     });
 
+    it("reports automatic microphone failures without onSdkError", async () => {
+      const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+      try {
+        let context: ReturnType<typeof useAgentContext> | undefined;
+        const { rerender } = render(
+          <TestProvider microphone={false}>
+            <ContextReader onContext={(value) => { context = value; }} />
+          </TestProvider>,
+        );
+        await act(async () => context!.start());
+
+        const reEnableFailure = new Error("microphone access denied on re-enable");
+        failNextMicrophoneStart(reEnableFailure);
+        rerender(
+          <TestProvider microphone>
+            <ContextReader onContext={(value) => { context = value; }} />
+          </TestProvider>,
+        );
+        await waitFor(() => expect(consoleError).toHaveBeenCalledWith(reEnableFailure));
+
+        const reconnectFailure = new Error("microphone access denied on reconnect");
+        failNextMicrophoneStart(reconnectFailure);
+        act(() => {
+          lastSession.state = "reconnecting";
+          lastSession.emit("reconnecting", 1, 100);
+          lastSession.state = "connected";
+          lastSession.emit("connected");
+        });
+        await waitFor(() => expect(consoleError).toHaveBeenCalledWith(reconnectFailure));
+        expect(consoleError).toHaveBeenCalledTimes(2);
+      } finally {
+        consoleError.mockRestore();
+      }
+    });
+
     it("starts an enabled microphone when reconnect reaches connected", async () => {
       let context: ReturnType<typeof useAgentContext> | undefined;
       const { rerender } = render(
