@@ -757,11 +757,11 @@ describe("AgentProvider", () => {
       expect(lastSession.sendFunctionCallResponse).not.toHaveBeenCalled();
     });
 
-    it("forwards auto-start connection failures to onSdkError", async () => {
+    it("forwards auto-start microphone failures to onSdkError", async () => {
       const onSdkError = jest.fn();
+      const failure = new Error("microphone access denied");
+      failNextMicrophoneStart(failure);
       render(<TestProvider autoStart onSdkError={onSdkError}><div /></TestProvider>);
-      const failure = new Error("connection refused");
-      lastSession.connect.mockRejectedValueOnce(failure);
 
       await waitFor(() => {
         expect(onSdkError).toHaveBeenCalledWith(failure);
