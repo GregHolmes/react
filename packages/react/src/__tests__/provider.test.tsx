@@ -757,10 +757,9 @@ describe("AgentProvider", () => {
         lastSession.state = "connected";
         lastSession.emit("connected");
       });
-      await waitFor(() => expect(microphones).toHaveLength(2));
+      await waitFor(() => expect(context!.micActive).toBe(true));
 
       expect(microphones[1].start).toHaveBeenCalledTimes(1);
-      expect(context!.micActive).toBe(true);
     });
 
     it("does not send a client-tool result through a replacement session", async () => {
