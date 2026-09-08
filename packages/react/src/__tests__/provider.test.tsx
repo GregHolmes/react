@@ -795,12 +795,20 @@ describe("AgentProvider", () => {
       const onSdkError = jest.fn();
       const failure = new Error("microphone access denied");
       failNextMicrophoneStart(failure);
-      render(<TestProvider autoStart onSdkError={onSdkError}><div /></TestProvider>);
+      let context: ReturnType<typeof useAgentContext> | undefined;
+      render(
+        <TestProvider autoStart onSdkError={onSdkError}>
+          <ContextReader onContext={(value) => { context = value; }} />
+        </TestProvider>,
+      );
 
       await waitFor(() => {
         expect(onSdkError).toHaveBeenCalledWith(failure);
       });
       expect(onSdkError).toHaveBeenCalledTimes(1);
+      expect(context!.state).toBe("disconnected");
+      expect(context!.micActive).toBe(false);
+      expect(context!.mode).toBe("idle");
     });
 
     it("survives StrictMode replay without duplicate auto-start or disposed-player reuse", async () => {

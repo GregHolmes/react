@@ -110,7 +110,7 @@ const {
   isReconnecting, // boolean
   isDisconnected, // boolean
   isActive,       // true when connected, connecting, or reconnecting
-  start,          // () => Promise<void>
+  start,          // () => Promise<void>; rejects on failure and does not call onSdkError
   stop,           // () => void
 } = useAgentState();
 ```
