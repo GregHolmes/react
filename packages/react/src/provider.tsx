@@ -124,6 +124,7 @@ export function AgentProvider({
   const startGenerationRef = useRef(0);
   const microphoneGenerationRef = useRef(0);
   const startPromiseRef = useRef<Promise<void> | null>(null);
+  const startInProgressGenerationRef = useRef<number | null>(null);
   const microphoneStartPromiseRef = useRef<Promise<void> | null>(null);
 
   const [state, setState] = useState<AgentState>("idle");
@@ -225,6 +226,7 @@ export function AgentProvider({
 
     const session = requireSession(sessionRef.current);
     const generation = ++startGenerationRef.current;
+    startInProgressGenerationRef.current = generation;
     const { tts: ttsEnabled } = latestPropsRef.current;
 
     clearAudioDoneTimer();
@@ -262,9 +264,15 @@ export function AgentProvider({
     void promise.then(
       () => {
         if (startPromiseRef.current === promise) startPromiseRef.current = null;
+        if (startInProgressGenerationRef.current === generation) {
+          startInProgressGenerationRef.current = null;
+        }
       },
       () => {
         if (startPromiseRef.current === promise) startPromiseRef.current = null;
+        if (startInProgressGenerationRef.current === generation) {
+          startInProgressGenerationRef.current = null;
+        }
       },
     );
     return promise;
@@ -273,6 +281,7 @@ export function AgentProvider({
   const stop = useCallback(() => {
     ++startGenerationRef.current;
     startPromiseRef.current = null;
+    startInProgressGenerationRef.current = null;
     clearAudioDoneTimer();
     sessionRef.current?.disconnect();
   }, [clearAudioDoneTimer]);
@@ -392,6 +401,7 @@ export function AgentProvider({
     const onState = () => setState(session.state);
     const onConnected = () => {
       onState();
+      if (startInProgressGenerationRef.current !== null) return;
       void startMicrophone(session).catch((error) => {
         latestPropsRef.current.onSdkError?.(
           error instanceof Error ? error : new Error(String(error)),
@@ -402,6 +412,7 @@ export function AgentProvider({
       ++startGenerationRef.current;
       ++microphoneGenerationRef.current;
       startPromiseRef.current = null;
+      startInProgressGenerationRef.current = null;
       onState();
       clearAudioDoneTimer();
       micRef.current?.stop();
@@ -525,6 +536,7 @@ export function AgentProvider({
       ++startGenerationRef.current;
       ++microphoneGenerationRef.current;
       startPromiseRef.current = null;
+      startInProgressGenerationRef.current = null;
       clearAudioDoneTimer();
 
       session.off("connecting", onState);

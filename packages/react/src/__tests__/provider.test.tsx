@@ -766,6 +766,7 @@ describe("AgentProvider", () => {
       await waitFor(() => {
         expect(onSdkError).toHaveBeenCalledWith(failure);
       });
+      expect(onSdkError).toHaveBeenCalledTimes(1);
     });
 
     it("survives StrictMode replay without duplicate auto-start or disposed-player reuse", async () => {
